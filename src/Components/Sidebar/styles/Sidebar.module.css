@@ -1,0 +1,48 @@
+:root{
+  /* Tamaño */
+  --height: 100%;
+  /* Paleta de Colores */
+  --darkblue: hsl(222, 45%, 50%);
+  --lightblue: hsl(200, 50%, 50%);
+}
+
+/* Contenedor de la Sidebar */
+
+.background {
+  /* Tamaño */
+  height: calc(var(--height) - 2rem);
+  /* Margenes */
+  margin-left: 1rem;
+  margin-right: 1rem;
+  margin-top: 1rem;
+  /* Fondo */
+  background-color: white;
+}
+
+@media screen and (max-width: 768px) {
+  .background {
+    margin: 0rem;
+    background-color: white;
+    min-height: 20vh;
+  }
+}
+
+/* Secciones (Lists) de la Sidebar */
+
+.section {
+  margin: 0rem !important;
+  padding: 0rem !important;
+}
+
+/* Titulo de la Sidebar */
+
+.title {
+  background-color: var(--lightblue)!important;
+  color: white!important;
+}
+
+.title .label{
+  width: 100%;
+  text-align: center;
+  font-weight: bold;
+}
