@@ -7,13 +7,14 @@ import {
   Chip,
   Typography,
 } from "@mui/material";
+import { useState } from "react";
 import Grid2 from "@mui/material/Grid2";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { PickersDay } from "@mui/x-date-pickers/PickersDay";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import dayjs from "dayjs";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 
 import Sidebar from "../Sidebar/Sidebar";
 import styles from "./styles/Calendar.module.css";
@@ -36,19 +37,7 @@ function Calendar() {
     // createProject("Proyecto 2", "Por Iniciar", 70),
   ];
 
-  const createData = (nombre, estado, progreso, limite) => {
-    return {
-      nombre,
-
-      estado,
-
-      progreso,
-
-      limite,
-
-      id: Math.random().toString(36).substr(2, 9),
-    };
-  };
+  const [active, setActive] = useState(false);
 
   const createTarea = (nombre, estado) => {
     return {
@@ -98,17 +87,20 @@ function Calendar() {
               />
             </LocalizationProvider>
 
-            <Box>
-              <Grid2 container>
+            <Box className={styles.dayinfo}>
+              <Grid2 container className={styles.container}>
                 <Grid2 size={{ xs: 12, md: 12 }}>
                   <Typography className={styles.title} variant="h5">
                     {" "}
                     Fecha{" "}
                   </Typography>
                 </Grid2>
-                <Grid2 size={{ xs: 12, md: 6 }} className={styles.dayinfo}>
-                  <Card>
-                    <CardHeader title="Proyectos"></CardHeader>
+                <Grid2 size={{ xs: 12, md: 6 }} className={styles.grid}>
+                  <Card className={styles.card}>
+                    <CardHeader
+                      title="Proyectos"
+                      className={styles.header}
+                    ></CardHeader>
                     {proyectos.map((proyecto) => (
                       <CardContent>
                         <Box className={styles.data}>
@@ -131,18 +123,33 @@ function Calendar() {
                             {proyecto.estado}
                           </Chip>
                         </Box>
-
-                        <Typography className={styles.pending}>
+                        <Typography
+                          className={styles.pending}
+                          onClick={() => setActive(!active)}
+                        >
                           Pendientes
-                          <ArrowDropDownIcon />
+                          {active ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
+                          {active
+                            ? null
+                            : pendientes.map((pendiente) => (
+                                <Box sx={{ display: "flex" }}>
+                                  <Typography key={pendiente.id}>
+                                    {pendiente.nombre}
+                                  </Typography>
+                                  <Checkbox />
+                                </Box>
+                              ))}
                         </Typography>
                       </CardContent>
                     ))}
                   </Card>
                 </Grid2>
-                <Grid2 size={{ xs: 12, md: 6 }} className={styles.dayinfo}>
-                  <Card>
-                    <CardHeader title="Tareas"></CardHeader>
+                <Grid2 size={{ xs: 12, md: 6 }} className={styles.grid}>
+                  <Card className={styles.card}>
+                    <CardHeader
+                      title="Tareas"
+                      className={styles.header}
+                    ></CardHeader>
                     <CardContent>
                       {tareas.map((tarea) => (
                         <Box className={styles.data}>

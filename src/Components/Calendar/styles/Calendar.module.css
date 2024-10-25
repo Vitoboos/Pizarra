@@ -66,9 +66,22 @@ body {
 /* Informacion del dia seleccionado */
 
 .dayinfo{
-  background-color: #4567b7!important;
   overflow-y: auto;
   flex-grow: 1;
+}
+
+.dayinfo .container{
+  height: 100%;
+}
+
+.grid .header{
+  text-align: center;
+}
+
+.grid .card{
+  background-color: white;
+  height: 100%;
+  overflow-y: scroll;
 }
 
 /* Proyectos */
