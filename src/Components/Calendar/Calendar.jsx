@@ -3,6 +3,10 @@ import {
   Card,
   CardContent,
   CardHeader,
+<<<<<<< HEAD
+=======
+  Container,
+>>>>>>> master
   Checkbox,
   Chip,
   Typography,
@@ -64,6 +68,7 @@ function Calendar() {
         </Grid2>
         <Grid2 size={{ xs: 12, md: 10 }} className={styles.content}>
           <Box className={styles.section}>
+<<<<<<< HEAD
             <Typography className={styles.title} variant="h5">
               Planificación
             </Typography>
@@ -88,6 +93,34 @@ function Calendar() {
             </LocalizationProvider>
 
             <Box className={styles.dayinfo}>
+=======
+            <Container className={styles.calendar}>
+              <Typography className={styles.title} variant="h5">
+                Planificación
+              </Typography>
+
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DateCalendar
+                  className={styles.calendar}
+                  defaultValue={dayjs()}
+                  slotProps={{
+                    day: {
+                      sx: {
+                        "&.Mui-selected": {
+                          backgroundColor: "#4669b9",
+                          color: "white",
+                          fontWeight: "bold",
+                        },
+                      },
+                    },
+                    today: true,
+                  }}
+                />
+              </LocalizationProvider>
+            </Container>
+
+            <Container className={styles.details}>
+>>>>>>> master
               <Grid2 container className={styles.container}>
                 <Grid2 size={{ xs: 12, md: 12 }}>
                   <Typography className={styles.title} variant="h5">
@@ -102,9 +135,17 @@ function Calendar() {
                       className={styles.header}
                     ></CardHeader>
                     {proyectos.map((proyecto) => (
+<<<<<<< HEAD
                       <CardContent>
                         <Box className={styles.data}>
                           <Typography>{proyecto.nombre}</Typography>
+=======
+                      <CardContent className={styles.data}>
+                        <Box className={styles.projects} onClick={() => setActive(!active)}>
+                          <Typography className={styles.name}>
+                            {proyecto.nombre}
+                          </Typography>
+>>>>>>> master
 
                           <Chip
                             size="small"
@@ -122,6 +163,7 @@ function Calendar() {
                           >
                             {proyecto.estado}
                           </Chip>
+<<<<<<< HEAD
                         </Box>
                         <Typography
                           className={styles.pending}
@@ -140,6 +182,24 @@ function Calendar() {
                                 </Box>
                               ))}
                         </Typography>
+=======
+
+                          {active ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
+                        </Box>
+
+                        {active
+                          ? null
+                          : pendientes.map((pendiente) => (
+                              <Box
+                                sx={{ display: "flex", alignItems: "center" }}
+                              >
+                                <Typography key={pendiente.id}>
+                                  {pendiente.nombre}
+                                </Typography>
+                                <Checkbox />
+                              </Box>
+                            ))}
+>>>>>>> master
                       </CardContent>
                     ))}
                   </Card>
@@ -150,17 +210,31 @@ function Calendar() {
                       title="Tareas"
                       className={styles.header}
                     ></CardHeader>
+<<<<<<< HEAD
                     <CardContent>
                       {tareas.map((tarea) => (
                         <Box className={styles.data}>
                           <Typography>{tarea.nombre}</Typography> <Checkbox />
+=======
+                    <CardContent className={styles.data}>
+                      {tareas.map((tarea) => (
+                        <Box className={styles.list}>
+                          <Typography className={styles.task}>
+                            {tarea.nombre}
+                          </Typography>{" "}
+                          <Checkbox />
+>>>>>>> master
                         </Box>
                       ))}
                     </CardContent>
                   </Card>
                 </Grid2>
               </Grid2>
+<<<<<<< HEAD
             </Box>
+=======
+            </Container>
+>>>>>>> master
           </Box>
         </Grid2>
       </Grid2>

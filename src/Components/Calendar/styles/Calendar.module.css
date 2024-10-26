@@ -56,6 +56,7 @@ body {
   justify-items: center;
 }
 
+<<<<<<< HEAD
 /* Calendario  */
 
 .calendar {
@@ -100,3 +101,46 @@ body {
   cursor: pointer;
   background-color: var(--lightgray);
 }
+=======
+/* Calendario */
+
+.calendar{
+  width: 100%;
+  height: 50%;
+}
+
+/* Detalles del Dia */
+
+.details{
+  width: 100%;
+  height: 50%;
+  overflow-y: scroll;
+}
+
+.details .card{
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.card .list{
+  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+}
+
+
+.details .projects{
+  width: 100%;
+  padding: 5px;
+  display: flex;
+  justify-content: center;
+}
+
+.projects:hover{
+  cursor: pointer;
+}
+>>>>>>> master
