@@ -56,52 +56,6 @@ body {
   justify-items: center;
 }
 
-<<<<<<< HEAD
-/* Calendario  */
-
-.calendar {
-  height: 500px;
-  width: 100%!important;
-}
-
-/* Informacion del dia seleccionado */
-
-.dayinfo{
-  overflow-y: auto;
-  flex-grow: 1;
-}
-
-.dayinfo .container{
-  height: 100%;
-}
-
-.grid .header{
-  text-align: center;
-}
-
-.grid .card{
-  background-color: white;
-  height: 100%;
-  overflow-y: scroll;
-}
-
-/* Proyectos */
-.data {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-}
-
-.pending {
-  padding: 3px;
-}
-
-.pending:hover {
-  cursor: pointer;
-  background-color: var(--lightgray);
-}
-=======
 /* Calendario */
 
 .calendar{
@@ -143,4 +97,3 @@ body {
 .projects:hover{
   cursor: pointer;
 }
->>>>>>> master
