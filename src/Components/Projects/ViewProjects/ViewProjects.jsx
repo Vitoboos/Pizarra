@@ -1,11 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import {
   Box,
   Chip,
   CircularProgress,
-  Tabs,
-  Tab,
+  LinearProgress,
   Table,
   TableBody,
   TableCell,
@@ -21,10 +20,6 @@ import {
 
 import Grid2 from "@mui/material/Grid2";
 
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-
 import Sidebar from "../../Sidebar/Sidebar";
 
 import styles from "./styles/ViewProjects.module.css";
@@ -36,97 +31,80 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 
 function ViewProjects() {
-  // DATOS TEMPORALES
+  // SOLICITUD DE DATOS A LA API
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [projects, setProjects] = useState([]);
+  const [tasks, setTasks] = useState([]);
+  const [rows, setRows] = useState([]);
+
+  const getProjects = async () => {
+    const response = await fetch("http://localhost:8000/api/v1/proyectos/");
+    const data = await response.json();
+    setProjects(data);
+  };
+
+  const getTasks = async () => {
+    const response = await fetch("http://localhost:8000/api/v1/tareas/");
+    const data = await response.json();
+    setTasks(data);
+  };
+
+  const [sortOrder, setSortOrder] = useState({
+    nombre: "asc",
+    estado: "asc",
+    progreso: "desc",
+    limite: "asc",
+  });
+
+  function constructPercentage(nombre) {
+    let assigned = tasks.filter((task) => task.proyecto_nombre === nombre);
+    let completed = assigned.filter((task) => task.estado === true);
+    let percentage = (completed.length / assigned.length) * 100;
+
+    return percentage;
+  }
+
+  // CONSTRUCCION DE TABLA
 
   const createData = (nombre, estado, progreso, limite) => {
     return {
       nombre,
-
       estado,
-
       progreso,
-
       limite,
-
       id: Math.random().toString(36).substr(2, 9),
+      sortKey: "nombre", // Default sort key
+      sortOrder: sortOrder.nombre, // Default sort order
     };
   };
+  // EFECTOS DE PRIMER RENDERIZADO
 
-  const rows = [
-    createData("Proyecto 1", "En Curso", 50, "12/10/2024"),
-    createData("Proyecto 2", "Por Iniciar", 70, "17/11/2024"),
-    createData("Proyecto 3", "Suspendido", 70, "22/10/2024"),
-    createData("Proyecto 4", "Finalizado", 70, "30/08/2024"),
-    createData("Proyecto 5", "En Curso", 40, "15/12/2024"),
-    createData("Proyecto 6", "Por Iniciar", 30, "20/01/2025"),
-    createData("Proyecto 7", "Suspendido", 60, "10/11/2024"),
-    createData("Proyecto 8", "Finalizado", 90, "25/09/2024"),
-    createData("Proyecto 9", "En Curso", 20, "05/02/2025"),
-    createData("Proyecto 10", "Por Iniciar", 80, "12/03/2025"),
-  ];
+  useEffect(() => {
+    getProjects();
+    getTasks();
+
+    const rows = projects.map((project) =>
+      createData(
+        project.nombre,
+        project.estado,
+        constructPercentage(project.nombre),
+        project.limite
+      )
+    );
+
+    setRows(rows);
+    setIsLoading(false);
+  }, []);
 
   // Filtros y paginación
 
-  const [order, setOrder] = useState("asc");
-
-  const [orderBy, setOrderBy] = useState("");
-
-  const [sortedRows, setSortedRows] = useState(rows);
-
-  const [page, setPage] = useState(0);
-
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-
-  const handleSortRequest = (property) => {
-    const isAsc = orderBy === property && order === "asc";
-
-    setOrder(isAsc ? "desc" : "asc");
-
-    setOrderBy(property);
-
-    const sortedData = [...rows].sort((a, b) => {
-      const valueA = a[property].toString().toLowerCase();
-
-      const valueB = b[property].toString().toLowerCase();
-
-      let comparison = 0;
-
-      if (valueA > valueB) {
-        comparison = 1;
-      } else if (valueA < valueB) {
-        comparison = -1;
-      }
-
-      return isAsc ? comparison : -comparison;
-    });
-
-    setSortedRows(sortedData);
+  const handleSortChange = (key) => {
+    setSortOrder((prevState) => ({
+      ...prevState,
+      [key]: prevState[key] === "asc" ? "desc" : "asc",
+    }));
   };
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-
-    setPage(0);
-  };
-
-  // Calculate the number of pages
-
-  const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - sortedRows.length) : 0;
-
-  // Calculate start and end indices for current page
-
-  const startIndex = page * rowsPerPage;
-
-  const endIndex = startIndex + rowsPerPage;
-
-  // Slice sortedRows for current page
-
-  const currentPageRows = sortedRows.slice(startIndex, endIndex);
 
   return (
     <Box className={styles.background}>
@@ -142,143 +120,97 @@ function ViewProjects() {
             </Typography>
 
             <Box className={styles.frame}>
-              <TableContainer component={Paper} className={styles.table}> 
+              <TableContainer component={Paper} className={styles.table}>
                 <Table size="small">
                   <TableHead className={styles.header}>
-                    {" "}
                     <TableRow className={styles.row}>
                       {/* Nombre */}
                       <TableCell className={styles.cell}>
-                        {" "}
                         <TableSortLabel
-                          active={orderBy === "nombre"}
-                          direction={orderBy === "nombre" ? order : "asc"}
-                          onClick={() => handleSortRequest("nombre")}
+                          onClick={() => handleSortChange("nombre")}
                         >
-                          {" "}
-                          Nombre{" "}
-                        </TableSortLabel>{" "}
-                      </TableCell>{" "}
+                          Nombre
+                          {sortOrder.nombre === "desc" ? (
+                            <ArrowDropUpIcon />
+                          ) : (
+                            <ArrowDropDownIcon />
+                          )}
+                        </TableSortLabel>
+                      </TableCell>
+
                       {/* Estado */}
                       <TableCell className={styles.cell}>
-                        {" "}
                         <TableSortLabel
-                          active={orderBy === "estado"}
-                          direction={orderBy === "estado" ? order : "asc"}
-                          onClick={() => handleSortRequest("estado")}
+                          onClick={() => handleSortChange("estado")}
                         >
-                          {" "}
-                          <CircleIcon className={styles.icon} /> Estado{" "}
-                        </TableSortLabel>{" "}
-                      </TableCell>{" "}
+                          Estado
+                          {sortOrder.estado === "desc" ? (
+                            <ArrowDropUpIcon />
+                          ) : (
+                            <ArrowDropDownIcon />
+                          )}
+                        </TableSortLabel>
+                      </TableCell>
+
                       {/* Progreso */}
                       <TableCell className={styles.cell}>
-                        {" "}
                         <TableSortLabel
-                          active={orderBy === "progreso"}
-                          direction={orderBy === "progreso" ? order : "asc"}
-                          onClick={() => handleSortRequest("progreso")}
+                          onClick={() => handleSortChange("progreso")}
                         >
-                          {" "}
-                          <DonutLargeIcon
-                            className={styles.icon}
-                          /> Progreso{" "}
-                        </TableSortLabel>{" "}
-                      </TableCell>{" "}
+                          Progreso
+                          {sortOrder.progreso === "desc" ? (
+                            <ArrowDropUpIcon />
+                          ) : (
+                            <ArrowDropDownIcon />
+                          )}
+                        </TableSortLabel>
+                      </TableCell>
+
                       {/* Fecha Limite */}
                       <TableCell className={styles.cell}>
-                        {" "}
                         <TableSortLabel
-                          active={orderBy === "limite"}
-                          direction={orderBy === "limite" ? order : "asc"}
-                          onClick={() => handleSortRequest("limite")}
+                          onClick={() => handleSortChange("limite")}
                         >
-                          {" "}
-                          <TimerIcon className={styles.icon} /> Fecha Limite{" "}
-                        </TableSortLabel>{" "}
-                      </TableCell>{" "}
+                          Fecha Limite
+                          {sortOrder.limite === "desc" ? (
+                            <ArrowDropUpIcon />
+                          ) : (
+                            <ArrowDropDownIcon />
+                          )}
+                        </TableSortLabel>
+                      </TableCell>
                     </TableRow>
                   </TableHead>
 
-                  <TableBody className={styles.body}>
-                    {currentPageRows.map((row) => (
-                      <TableRow key={row.id} className={styles.row}>
-                        <TableCell
-                          component="th"
-                          scope="row"
-                          className={styles.cell}
-                        >
-                          {row.nombre}
-
-                          <ArrowDropDownIcon className={styles.showmore} />
-                        </TableCell>
-
-                        <TableCell className={styles.cell}>
-                          <Chip
-                            color={
-                              row.estado === "En Curso"
-                                ? "primary"
-                                : row.estado === "Suspendido"
-                                ? "error"
-                                : row.estado === "Por Iniciar"
-                                ? "warning"
-                                : "success"
-                            }
-                            label={row.estado}
-                          >
-                            {" "}
-                            {row.estado}{" "}
-                          </Chip>
-                        </TableCell>
-
-                        <TableCell className={styles.cell}>
-                          <Box
-                            className={styles.box}
-                          >
-                            <CircularProgress
-                              variant="determinate"
-                              value={row.progreso}
-                              color="secondary"
-                            />
-                            <Typography variant="h6" style={{ marginLeft: 8 }} className={styles.progreso}>
-                              {row.progreso} %
-                            </Typography>
-                          </Box>
-                        </TableCell>
-
-                        <TableCell className={styles.cell}>
-                          <Typography variant="h6"> {row.limite} </Typography>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-
-                    {emptyRows > 0 && (
-                      <TableRow style={{ height: 53 * emptyRows }}>
-                        <TableCell colSpan={6} />
-                      </TableRow>
-                    )}
-                  </TableBody>
-
-                  <TableFooter className={styles.footer}>
-                    <TableRow>
-                      <TablePagination
-                        rowsPerPageOptions={[5, 10, 25]}
-                        colSpan={4}
-                        count={sortedRows.length}
-                        rowsPerPage={rowsPerPage}
-                        page={page}
-                        onPageChange={handleChangePage}
-                        onRowsPerPageChange={handleChangeRowsPerPage}
-                      />
-                    </TableRow>
-                  </TableFooter>
+                  {!isLoading && (
+                    <TableBody className={styles.body}>
+                      {rows.map((row) => {
+                        const sortKey = row.sortKey;
+                        return (
+                          <TableRow key={row.id} className={styles.row}>
+                            <TableCell className={styles.cell}>
+                              {row[sortKey]}
+                            </TableCell>
+                            <TableCell className={styles.cell}>
+                              {row[sortKey] === "true" ? "Activo" : "Inactivo"}
+                            </TableCell>
+                            <TableCell className={styles.cell}>
+                              {row[sortKey]}%
+                            </TableCell>
+                            <TableCell className={styles.cell}>
+                              {row[sortKey]}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  )}
                 </Table>
               </TableContainer>
             </Box>
           </Box>
         </Grid2>
       </Grid2>
-
     </Box>
   );
 }
