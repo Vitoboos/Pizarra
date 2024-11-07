@@ -1,12 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import {
   Box,
-  Checkbox,
   Chip,
   CircularProgress,
-  Tabs,
-  Tab,
+  LinearProgress,
   Table,
   TableBody,
   TableCell,
@@ -21,12 +19,8 @@ import {
 } from "@mui/material";
 
 import Grid2 from "@mui/material/Grid2";
-
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-
 import Sidebar from "../../Sidebar/Sidebar";
+import { DataGrid } from "@mui/x-data-grid";
 
 import styles from "./styles/ViewTasks.module.css";
 
@@ -35,100 +29,76 @@ import DonutLargeIcon from "@mui/icons-material/DonutLarge";
 import TimerIcon from "@mui/icons-material/Timer";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
-import ChecklistIcon from "@mui/icons-material/Checklist";
 
-function ViewTasks() {
-  // DATOS TEMPORALES
+function ViewProjects() {
+  // SOLICITUD DE DATOS A LA API
 
-  const createData = (nombre, estado, progreso, limite) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [projects, setProjects] = useState([]);
+  const [tasks, setTasks] = useState([]);
+  const [rowData, setRowData] = useState([]);
+
+  const getProjects = async () => {
+    const response = await fetch("http://localhost:8000/api/v1/proyectos/");
+    const data = await response.json();
+    setProjects(data);
+  };
+
+  const getTasks = async () => {
+    const response = await fetch("http://localhost:8000/api/v1/tareas/");
+    const data = await response.json();
+    setTasks(data);
+  };
+
+  // CONSTRUCCION DE TABLA
+
+  const createData = (id, nombre, prioridad, inicio, limite, estado) => {
     return {
+      id,
       nombre,
-
-      estado,
-
-      progreso,
-
+      prioridad,
+      inicio,
       limite,
-
-      id: Math.random().toString(36).substr(2, 9),
+      estado,
     };
   };
 
-  const rows = [
-    createData("Tarea 1", "En Curso", 50, "12/10/2024"),
-    createData("Tarea 2", "Por Iniciar", 70, "17/11/2024"),
-    createData("Tarea 3", "Suspendido", 70, "22/10/2024"),
-    createData("Tarea 4", "Finalizado", 70, "30/08/2024"),
-    createData("Tarea 5", "En Curso", 40, "15/12/2024"),
-    createData("Tarea 6", "Por Iniciar", 30, "20/01/2025"),
-    createData("Tarea 7", "Suspendido", 60, "10/11/2024"),
-    createData("Tarea 8", "Finalizado", 90, "25/09/2024"),
-    createData("Tarea 9", "En Curso", 20, "05/02/2025"),
-    createData("Tarea 10", "Por Iniciar", 80, "12/03/2025"),
+  // FILAS Y COLUMNAS
+
+  const rows = rowData;
+
+  const columns = [
+    { field: "id", headerName: "ID", flex: 1,},
+    { field: "nombre", headerName: "Nombre", flex: 1 },
+    { field: "prioridad", headerName: "Prioridad", flex: 1 },
+    { field: "inicio", headerName: "Inicio", flex: 1 },
+    { field: "limite", headerName: "Limite", flex: 1 },
+    { field: "estado", headerName: "Estado", flex: 1 },
   ];
 
-  // Filtros y paginación
+  // EFECTOS DE PRIMER RENDERIZADO
+  useEffect(() => {
+    getProjects();
+    getTasks();
+  }, []);
 
-  const [order, setOrder] = useState("asc");
+  // EFECTOS DE RENDERIZADO
+  useEffect(() => {
+    const rows = tasks.map((task) =>
 
-  const [orderBy, setOrderBy] = useState("");
+      createData(
+        task.id,
+        task.nombre,
+        task.prioridad,
+        task.inicio,
+        task.limite,
+        task.estado,
+      ),
+    );
 
-  const [sortedRows, setSortedRows] = useState(rows);
-
-  const [page, setPage] = useState(0);
-
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-
-  const handleSortRequest = (property) => {
-    const isAsc = orderBy === property && order === "asc";
-
-    setOrder(isAsc ? "desc" : "asc");
-
-    setOrderBy(property);
-
-    const sortedData = [...rows].sort((a, b) => {
-      const valueA = a[property].toString().toLowerCase();
-
-      const valueB = b[property].toString().toLowerCase();
-
-      let comparison = 0;
-
-      if (valueA > valueB) {
-        comparison = 1;
-      } else if (valueA < valueB) {
-        comparison = -1;
-      }
-
-      return isAsc ? comparison : -comparison;
-    });
-
-    setSortedRows(sortedData);
-  };
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-
-    setPage(0);
-  };
-
-  // Calculate the number of pages
-
-  const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - sortedRows.length) : 0;
-
-  // Calculate start and end indices for current page
-
-  const startIndex = page * rowsPerPage;
-
-  const endIndex = startIndex + rowsPerPage;
-
-  // Slice sortedRows for current page
-
-  const currentPageRows = sortedRows.slice(startIndex, endIndex);
+    setRowData(rows);
+    setIsLoading(false);    
+  }, [projects, tasks]);
 
   return (
     <Box className={styles.background}>
@@ -143,98 +113,17 @@ function ViewTasks() {
               Tareas
             </Typography>
 
-            <Box className={styles.frame}>
-              <TableContainer component={Paper} className={styles.table}>
-                <Table size="small">
-                  <TableHead className={styles.header}>
-                    {" "}
-                    <TableRow className={styles.row}>
-                      <TableCell className={styles.cell}>
-                        {" "}
-                        <TableSortLabel
-                          active={orderBy === "nombre"}
-                          direction={orderBy === "nombre" ? order : "asc"}
-                          onClick={() => handleSortRequest("nombre")}
-                        >
-                          {" "}
-                          Nombre{" "}
-                        </TableSortLabel>{" "}
-                      </TableCell>
-
-                      <TableCell className={styles.cell}>
-                        {" "}
-                        <TableSortLabel
-                          active={orderBy === "limite"}
-                          direction={orderBy === "limite" ? order : "asc"}
-                          onClick={() => handleSortRequest("limite")}
-                        >
-                          {" "}
-                          <TimerIcon className={styles.icon} /> Fecha Limite{" "}
-                        </TableSortLabel>{" "}
-                      </TableCell>
-
-                      <TableCell className={styles.cell}>
-                        {" "}
-                        <TableSortLabel
-                          active={orderBy === "limite"}
-                          direction={orderBy === "limite" ? order : "asc"}
-                          onClick={() => handleSortRequest("limite")}
-                        >
-                          {" "}
-                          <ChecklistIcon className={styles.icon} />{" "}
-                        </TableSortLabel>{" "}
-                      </TableCell>
-                    </TableRow>
-                  </TableHead>
-
-                  <TableBody className={styles.body}>
-                    {currentPageRows.map((row) => (
-                      <TableRow key={row.id} className={styles.row}>
-                        <TableCell
-                          component="th"
-                          scope="row"
-                          className={styles.cell}
-                        >
-                          {row.nombre}
-
-                          <ArrowDropDownIcon className={styles.showmore} />
-                        </TableCell>
-
-                        <TableCell className={styles.cell}>
-                          <Box className={styles.box}>
-                            <Typography variant="h6"> {row.limite} </Typography>
-                          </Box>
-                        </TableCell>
-
-                        <TableCell className={styles.cell}>
-                          <Checkbox />
-                        </TableCell>
-                      </TableRow>
-                    ))}
-
-                    {emptyRows > 0 && (
-                      <TableRow style={{ height: 53 * emptyRows }}>
-                        <TableCell colSpan={6} />
-                      </TableRow>
-                    )}
-                  </TableBody>
-
-                  <TableFooter className={styles.footer}>
-                    <TableRow>
-                      <TablePagination
-                        rowsPerPageOptions={[5, 10, 25]}
-                        colSpan={3}
-                        count={sortedRows.length}
-                        rowsPerPage={rowsPerPage}
-                        page={page}
-                        onPageChange={handleChangePage}
-                        onRowsPerPageChange={handleChangeRowsPerPage}
-                      />
-                    </TableRow>
-                  </TableFooter>
-                </Table>
-              </TableContainer>
-            </Box>
+            {isLoading ? (
+              <CircularProgress />
+            ) : (
+              <DataGrid
+                className={styles.table}
+                rows={rows}
+                columns={columns}
+                pageSize={5}
+                rowsPerPageOptions={[5]}
+              />
+            )}
           </Box>
         </Grid2>
       </Grid2>
@@ -242,4 +131,4 @@ function ViewTasks() {
   );
 }
 
-export default ViewTasks;
+export default ViewProjects;

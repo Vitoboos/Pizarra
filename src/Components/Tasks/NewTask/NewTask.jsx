@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -31,6 +31,57 @@ import SaveIcon from "@mui/icons-material/Save";
 // Iconos
 
 function NewTask() {
+  const [nombre, setNombre] = useState("");
+  const [inicio, setInicio] = useState("");
+  const [limite, setLimite] = useState("");
+  const [prioridad, setPrioridad] = useState(0);
+  const [proyectos, setProyectos] = useState([]);
+
+  const [proyectoList, setProyectoList] = useState([]);
+
+  const getProyectos = async () => {
+    const response = await fetch("http://localhost:8000/api/v1/proyectos/");
+    const data = await response.json();
+    setProyectoList(data);
+  };
+  // EFECTOS DE PRIMER RENDERIZADO
+  useEffect(() => {
+    getProyectos();
+  }, []);
+
+  const saveProject = async () => {
+    try {
+      const requestBody = {
+        nombre,
+        inicio,
+        limite,
+        prioridad,
+        proyecto: proyectos.id,
+      };
+
+      console.log("Request Body:", requestBody); // Log the request body
+
+      const response = await fetch("http://localhost:8000/api/v1/tareas/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error Data:", errorData); // Log the error data
+        throw new Error(`Error: ${errorData.message || response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log("Task saved successfully:", data);
+    } catch (error) {
+      console.error("Failed to save task:", error);
+    }
+  };
+
   return (
     <Box className={styles.background}>
       <Grid2 container>
@@ -51,20 +102,42 @@ function NewTask() {
                     label="Nombre"
                     placeholder="Nombre del Proyecto"
                     fullWidth
+                    onChange={(e) => setNombre(e.target.value)}
                   />
+                </Grid2>
+
+                <Grid2 size={{ xs: 12, md: 12 }} className={styles.input}>
+                  <FormControl>
+                    <InputLabel> Proyecto </InputLabel>
+                    <Select
+                      value={proyectos}
+                      className={styles.select}
+                      onChange={(e) => setProyectos(e.target.value)}
+                    >
+                      {proyectoList.map((proyecto) => (
+                        <MenuItem key={proyecto.id} value={proyecto}>
+                          {proyecto.nombre}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
                 </Grid2>
 
                 <Grid2 size={{ xs: 12, md: 6 }} className={styles.dates}>
                   <InputLabel> Fecha de Inicio </InputLabel>
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker />
+                    <DatePicker
+                      onChange={(date) => setInicio(date.format("YYYY-MM-DD"))}
+                    />
                   </LocalizationProvider>
                 </Grid2>
 
                 <Grid2 size={{ xs: 12, md: 6 }} className={styles.dates}>
                   <InputLabel> Fecha Limite </InputLabel>
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker />
+                    <DatePicker
+                      onChange={(date) => setLimite(date.format("YYYY-MM-DD"))}
+                    />
                   </LocalizationProvider>
                 </Grid2>
 
@@ -74,16 +147,16 @@ function NewTask() {
                 </Grid2>
               </Grid2>
               <div className={styles.buttonContainer}>
-                  <Button
-                    startIcon={<SaveIcon />}
-                    variant="contained"
-                    color="success"
-                    className={styles.save}
-                  >
-                    Guardar
-                  </Button>
-                </div>
-
+                <Button
+                  startIcon={<SaveIcon />}
+                  variant="contained"
+                  color="success"
+                  className={styles.save}
+                  onClick={saveProject}
+                >
+                  Guardar
+                </Button>
+              </div>
             </Box>
           </Box>
         </Grid2>

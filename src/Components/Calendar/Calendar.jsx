@@ -7,8 +7,9 @@ import {
   Checkbox,
   Chip,
   Typography,
+  Stack,
 } from "@mui/material";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Grid2 from "@mui/material/Grid2";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -21,41 +22,100 @@ import Sidebar from "../Sidebar/Sidebar";
 import styles from "./styles/Calendar.module.css";
 
 function Calendar() {
-  // Datos Temporales
-  const createProject = (nombre, estado, progreso) => {
-    return {
-      nombre,
+  // SOLICITUD DE DATOS A LA API
 
-      estado,
+  const [isLoading, setIsLoading] = useState(true);
+  const [date, setDate] = useState(dayjs());
+  const [projects, setProjects] = useState([]);
+  const [tasks, setTasks] = useState([]);
+  // Segun la fecha, se obtienen las tareas y proyectos correspondientes
+  const [projectData, setProjectData] = useState([]);
+  const [taskData, setTaskData] = useState([]);
 
-      progreso,
-
-      id: Math.random().toString(36).substr(2, 9),
-    };
-  };
-  const proyectos = [
-    createProject("Proyecto 1", "En Curso", 50),
-    // createProject("Proyecto 2", "Por Iniciar", 70),
-  ];
-
-  const [active, setActive] = useState(false);
-
-  const createTarea = (nombre, estado) => {
-    return {
-      nombre,
-      estado,
-      id: Math.random().toString(36).substr(2, 9),
-    };
+  const getProjects = async () => {
+    const response = await fetch("http://localhost:8000/api/v1/proyectos/");
+    const data = await response.json();
+    setProjects(data);
   };
 
-  const pendientes = [
-    createTarea("Tarea A", false),
-    createTarea("Tarea B", false),
-    createTarea("Tarea C", false),
-    createTarea("Tarea D", false),
-  ];
+  const getTasks = async () => {
+    const response = await fetch("http://localhost:8000/api/v1/tareas/");
+    const data = await response.json();
+    setTasks(data);
+  };
 
-  const tareas = [createTarea("Tarea 1", false), createTarea("Tarea 2", false)];
+  // EFECTOS DE PRIMER RENDERIZADO
+  useEffect(() => {
+    getProjects();
+    getTasks();
+  }, []);
+  // EFECTOS DE RENDERIZADO
+  useEffect(() => {
+    const project = projects.filter(
+      (project) => project.limite === date.format("YYYY-MM-DD")
+    );
+    setProjectData(project);
+
+    const task = tasks.filter(
+      (task) => task.limite === date.format("YYYY-MM-DD")
+    );
+    setTaskData(task);
+  }, [projects, tasks, date]);
+
+  // Componentes Internos
+
+  function ProjectItem({ project }) {
+    const [isActive, setActivity] = useState(false);
+    return (
+      <CardContent className={styles.data}>
+        <Container
+          className={styles.container}
+          onClick={() => {
+            setActivity(!isActive);
+          }}
+        >
+          <Chip size="small" className={styles.chip} label={project.estado} />
+          <Typography className={styles.name}>
+            {project.nombre}
+            {isActive ? <ArrowDropDownIcon /> : <ArrowDropUpIcon />}
+          </Typography>
+        </Container>
+
+        {isActive && (
+          <Stack className={styles.stack}>
+            {tasks
+              .filter((task) => task.proyecto_nombre === project.nombre)
+              .map((task) => (
+                <Container key={task.id} className={styles.assignment}>
+                  <Typography className={styles.task}>{task.nombre}</Typography>
+
+                  <Checkbox
+                    className={styles.checkbox}
+                    defaultChecked={task.estado}
+                  />
+                </Container>
+              ))}
+          </Stack>
+        )}
+      </CardContent>
+    );
+  }
+
+  function TaskItem({ task }) {
+    return (
+      <CardContent className={styles.data}>
+        <Stack className={styles.stack}>
+          <Container className={styles.assignment}>
+            <Typography className={styles.name}>{task.nombre}</Typography>
+            <Checkbox
+              className={styles.checkbox}
+              defaultChecked={task.estado}
+            />
+          </Container>
+        </Stack>
+      </CardContent>
+    );
+  }
 
   return (
     <Box className={styles.background}>
@@ -73,7 +133,8 @@ function Calendar() {
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DateCalendar
                   className={styles.calendar}
-                  defaultValue={dayjs()}
+                  value={date}
+                  onChange={(date) => setDate(date)}
                   slotProps={{
                     day: {
                       sx: {
@@ -104,46 +165,8 @@ function Calendar() {
                       title="Proyectos"
                       className={styles.header}
                     ></CardHeader>
-                    {proyectos.map((proyecto) => (
-                      <CardContent className={styles.data}>
-                        <Box className={styles.projects} onClick={() => setActive(!active)}>
-                          <Typography className={styles.name}>
-                            {proyecto.nombre}
-                          </Typography>
-
-                          <Chip
-                            size="small"
-                            sx={{ ml: 1 }}
-                            color={
-                              proyecto.estado === "En Curso"
-                                ? "primary"
-                                : proyecto.estado === "Suspendido"
-                                ? "error"
-                                : proyecto.estado === "Por Iniciar"
-                                ? "warning"
-                                : "success"
-                            }
-                            label={proyecto.estado}
-                          >
-                            {proyecto.estado}
-                          </Chip>
-
-                          {active ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
-                        </Box>
-
-                        {active
-                          ? null
-                          : pendientes.map((pendiente) => (
-                              <Box
-                                sx={{ display: "flex", alignItems: "center" }}
-                              >
-                                <Typography key={pendiente.id}>
-                                  {pendiente.nombre}
-                                </Typography>
-                                <Checkbox />
-                              </Box>
-                            ))}
-                      </CardContent>
+                    {projectData.map((project) => (
+                      <ProjectItem key={project.id} project={project} />
                     ))}
                   </Card>
                 </Grid2>
@@ -154,13 +177,8 @@ function Calendar() {
                       className={styles.header}
                     ></CardHeader>
                     <CardContent className={styles.data}>
-                      {tareas.map((tarea) => (
-                        <Box className={styles.list}>
-                          <Typography className={styles.task}>
-                            {tarea.nombre}
-                          </Typography>{" "}
-                          <Checkbox />
-                        </Box>
+                      {taskData.map((task) => (
+                        <TaskItem key={task.id} task={task} />
                       ))}
                     </CardContent>
                   </Card>

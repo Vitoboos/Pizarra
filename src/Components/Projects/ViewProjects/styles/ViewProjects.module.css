@@ -68,6 +68,12 @@ body {
   max-height: 50vh;
 }
 
+.table .header{
+  background-color: var(--lightblue);
+  color: white;
+  text-align: center;
+}
+
 .header {
   background-color: var(--lightblue);
   position: sticky;

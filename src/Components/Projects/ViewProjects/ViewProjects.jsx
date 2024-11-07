@@ -19,8 +19,8 @@ import {
 } from "@mui/material";
 
 import Grid2 from "@mui/material/Grid2";
-
 import Sidebar from "../../Sidebar/Sidebar";
+import { DataGrid } from "@mui/x-data-grid";
 
 import styles from "./styles/ViewProjects.module.css";
 
@@ -34,9 +34,10 @@ function ViewProjects() {
   // SOLICITUD DE DATOS A LA API
 
   const [isLoading, setIsLoading] = useState(true);
+  const [isUpdating, setIsUpdating] = useState(false);
   const [projects, setProjects] = useState([]);
   const [tasks, setTasks] = useState([]);
-  const [rows, setRows] = useState([]);
+  const [rowData, setRowData] = useState([]);
 
   const getProjects = async () => {
     const response = await fetch("http://localhost:8000/api/v1/proyectos/");
@@ -50,13 +51,6 @@ function ViewProjects() {
     setTasks(data);
   };
 
-  const [sortOrder, setSortOrder] = useState({
-    nombre: "asc",
-    estado: "asc",
-    progreso: "desc",
-    limite: "asc",
-  });
-
   function constructPercentage(nombre) {
     let assigned = tasks.filter((task) => task.proyecto_nombre === nombre);
     let completed = assigned.filter((task) => task.estado === true);
@@ -67,25 +61,80 @@ function ViewProjects() {
 
   // CONSTRUCCION DE TABLA
 
-  const createData = (nombre, estado, progreso, limite) => {
+  const createData = (id, nombre, estado, progreso, limite) => {
     return {
+      id,
       nombre,
       estado,
       progreso,
       limite,
-      id: Math.random().toString(36).substr(2, 9),
-      sortKey: "nombre", // Default sort key
-      sortOrder: sortOrder.nombre, // Default sort order
     };
   };
-  // EFECTOS DE PRIMER RENDERIZADO
 
+  // FILAS Y COLUMNAS
+
+  const rows = rowData;
+
+  const columns = [
+    {
+      field: "id",
+      headerName: "ID",
+      headerClassName: styles.header,
+      headerAlign: "center",
+      className: styles.column,
+      flex: 1,
+    },
+    {
+      field: "nombre",
+      headerName: "Nombre",
+      headerClassName: styles.header,
+      headerAlign: "center",
+      className: styles.column,
+      flex: 1,
+    },
+    {
+      field: "estado",
+      headerName: "Estado",
+      headerClassName: styles.header,
+      headerAlign: "center",
+      className: styles.column,
+      flex: 1,
+    },
+    {
+      field: "progreso",
+      headerName: "Progreso",
+      headerClassName: styles.header,
+      headerAlign: "center",
+      className: styles.column,
+      flex: 1,
+    },
+    {
+      field: "limite",
+      headerName: "Limite",
+      headerClassName: styles.header,
+      headerAlign: "center",
+      className: styles.column,
+      flex: 1,
+    },
+  ];
+
+  const onRowClick = (params) => {
+    alert(params.id)
+    setIsLoading(true);
+    setIsUpdating(true);
+  };
+
+  // EFECTOS DE PRIMER RENDERIZADO
   useEffect(() => {
     getProjects();
     getTasks();
+  }, []);
 
+  // EFECTOS DE RENDERIZADO
+  useEffect(() => {
     const rows = projects.map((project) =>
       createData(
+        project.id,
         project.nombre,
         project.estado,
         constructPercentage(project.nombre),
@@ -93,18 +142,11 @@ function ViewProjects() {
       )
     );
 
-    setRows(rows);
+    setRowData(rows);
     setIsLoading(false);
-  }, []);
+  }, [projects, tasks]);
 
-  // Filtros y paginación
-
-  const handleSortChange = (key) => {
-    setSortOrder((prevState) => ({
-      ...prevState,
-      [key]: prevState[key] === "asc" ? "desc" : "asc",
-    }));
-  };
+  // Editor
 
   return (
     <Box className={styles.background}>
@@ -119,95 +161,21 @@ function ViewProjects() {
               Proyectos
             </Typography>
 
-            <Box className={styles.frame}>
-              <TableContainer component={Paper} className={styles.table}>
-                <Table size="small">
-                  <TableHead className={styles.header}>
-                    <TableRow className={styles.row}>
-                      {/* Nombre */}
-                      <TableCell className={styles.cell}>
-                        <TableSortLabel
-                          onClick={() => handleSortChange("nombre")}
-                        >
-                          Nombre
-                          {sortOrder.nombre === "desc" ? (
-                            <ArrowDropUpIcon />
-                          ) : (
-                            <ArrowDropDownIcon />
-                          )}
-                        </TableSortLabel>
-                      </TableCell>
+            {isLoading & !isUpdating ? (
+              <CircularProgress />
+            ) : (
+              <DataGrid
+                className={styles.table}
+                rows={rows}
+                columns={columns}
+                pageSize={5}
+                rowsPerPageOptions={[5]}
+                onRowClick={onRowClick}                
+              />
+            )}
 
-                      {/* Estado */}
-                      <TableCell className={styles.cell}>
-                        <TableSortLabel
-                          onClick={() => handleSortChange("estado")}
-                        >
-                          Estado
-                          {sortOrder.estado === "desc" ? (
-                            <ArrowDropUpIcon />
-                          ) : (
-                            <ArrowDropDownIcon />
-                          )}
-                        </TableSortLabel>
-                      </TableCell>
+            {!isLoading & isUpdating ? <LinearProgress /> : null}
 
-                      {/* Progreso */}
-                      <TableCell className={styles.cell}>
-                        <TableSortLabel
-                          onClick={() => handleSortChange("progreso")}
-                        >
-                          Progreso
-                          {sortOrder.progreso === "desc" ? (
-                            <ArrowDropUpIcon />
-                          ) : (
-                            <ArrowDropDownIcon />
-                          )}
-                        </TableSortLabel>
-                      </TableCell>
-
-                      {/* Fecha Limite */}
-                      <TableCell className={styles.cell}>
-                        <TableSortLabel
-                          onClick={() => handleSortChange("limite")}
-                        >
-                          Fecha Limite
-                          {sortOrder.limite === "desc" ? (
-                            <ArrowDropUpIcon />
-                          ) : (
-                            <ArrowDropDownIcon />
-                          )}
-                        </TableSortLabel>
-                      </TableCell>
-                    </TableRow>
-                  </TableHead>
-
-                  {!isLoading && (
-                    <TableBody className={styles.body}>
-                      {rows.map((row) => {
-                        const sortKey = row.sortKey;
-                        return (
-                          <TableRow key={row.id} className={styles.row}>
-                            <TableCell className={styles.cell}>
-                              {row[sortKey]}
-                            </TableCell>
-                            <TableCell className={styles.cell}>
-                              {row[sortKey] === "true" ? "Activo" : "Inactivo"}
-                            </TableCell>
-                            <TableCell className={styles.cell}>
-                              {row[sortKey]}%
-                            </TableCell>
-                            <TableCell className={styles.cell}>
-                              {row[sortKey]}
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  )}
-                </Table>
-              </TableContainer>
-            </Box>
           </Box>
         </Grid2>
       </Grid2>

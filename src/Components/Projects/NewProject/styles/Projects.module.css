@@ -119,6 +119,13 @@ body {
   min-height: 10vh;
 }
 
+.basket .item {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
 .frame .search{
   margin: 0px
 }
