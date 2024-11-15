@@ -30,9 +30,18 @@ import TimerIcon from "@mui/icons-material/Timer";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 
-function ViewProjects() {
-  // SOLICITUD DE DATOS A LA API
+import { useNavigate } from "react-router-dom";
 
+function ViewProjects() {
+// Navegacion
+  const navigate = useNavigate();
+
+  const onRowClick = (params) => {
+    console.log(params.id)
+    navigate(`/tareas/${params.row.id}`, { state: params.id })
+  };
+
+  // SOLICITUD DE DATOS A LA API
   const [isLoading, setIsLoading] = useState(true);
   const [projects, setProjects] = useState([]);
   const [tasks, setTasks] = useState([]);
@@ -122,6 +131,7 @@ function ViewProjects() {
                 columns={columns}
                 pageSize={5}
                 rowsPerPageOptions={[5]}
+                onRowClick={onRowClick}
               />
             )}
           </Box>

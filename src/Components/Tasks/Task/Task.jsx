@@ -1,85 +1,155 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Button,
-  Card,
-  Container,
+  Chip,
+  CircularProgress,
   FormControl,
-  IconButton,
-  InputAdornment,
   InputLabel,
+  LinearProgress,
   MenuItem,
-  Rating,
-  Tabs,
-  Tab,
   TextField,
   Typography,
+  Rating,
   Select,
-  CardContent,
+  Paper,
 } from "@mui/material";
 import Grid2 from "@mui/material/Grid2";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import Sidebar from "../../Sidebar/Sidebar";
-import styles from "./styles/NewTask.module.css";
+import styles from "./styles/Task.module.css";
 
+// Iconos
+import ClearIcon from "@mui/icons-material/Clear";
 import InfoIcon from "@mui/icons-material/Info";
 import BallotIcon from "@mui/icons-material/Ballot";
 import DescriptionIcon from "@mui/icons-material/Description";
 import SearchIcon from "@mui/icons-material/Search";
 import SaveIcon from "@mui/icons-material/Save";
-// Iconos
 
-function NewTask() {
+import { useLocation } from "react-router-dom";
+import dayjs from "dayjs";
+
+import { useNavigate } from "react-router-dom";
+
+function Task() {
+  const navigate = useNavigate();
+  // Datos de la tarea
+  const [tarea, setTarea] = useState("");
   const [nombre, setNombre] = useState("");
-  const [inicio, setInicio] = useState("");
-  const [limite, setLimite] = useState("");
+  const [estado, setEstado] = useState("");
+  const [inicio, setInicio] = useState(dayjs());
+  const [limite, setLimite] = useState(dayjs());
   const [prioridad, setPrioridad] = useState(0);
-  const [proyectos, setProyectos] = useState([]);
-
+  const [proyecto, setProyecto] = useState("");
   const [proyectoList, setProyectoList] = useState([]);
+
+  // Estado heredados
+  const location = useLocation();
+  const ID = location.state;
+
+  const getTarea = async () => {
+    const response = await fetch(`http://localhost:8000/api/v1/tareas/${ID}`);
+    const data = await response.json();
+    console.log(data);
+    setTarea(data);
+    setNombre(data.nombre);
+    setEstado(data.estado);
+    setInicio(dayjs(data.inicio));
+    setLimite(dayjs(data.limite));
+    setPrioridad(data.prioridad);
+    fetchProyecto(data.proyecto)
+  };
 
   const getProyectos = async () => {
     const response = await fetch("http://localhost:8000/api/v1/proyectos/");
     const data = await response.json();
     setProyectoList(data);
   };
-  // EFECTOS DE PRIMER RENDERIZADO
+
+  const fetchProyecto = async (id) => {
+    const response = await fetch(
+      `http://localhost:8000/api/v1/proyectos/${id}`
+    );
+    const data = await response.json();
+    setProyecto(data);
+  };
+
   useEffect(() => {
+    getTarea();
     getProyectos();
   }, []);
 
-  const saveProject = async () => {
+  // FUNCIONES DE GUARDADO
+
+  const editProject = async (ID) => {
     try {
       const requestBody = {
         nombre,
-        inicio,
-        limite,
+        estado,
+        inicio: inicio.format("YYYY-MM-DD"),
+        limite: limite.format("YYYY-MM-DD"),
         prioridad,
-        proyecto: proyectos.id,
+        departamentos: selectedDepartamentos.map(
+          (departamento) => departamento.id
+        ),
+        proveedores: selectedProveedores.map((proveedor) => proveedor.id),
+        observaciones,
       };
 
-      console.log("Request Body:", requestBody); // Log the request body
+      console.log("Request Body:", requestBody);
 
-      const response = await fetch("http://localhost:8000/api/v1/tareas/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestBody),
-      });
+      const response = await fetch(
+        `http://localhost:8000/api/v1/tareas/${ID}/`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestBody),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error("Error Data:", errorData); // Log the error data
+        console.error("Error Data:", errorData);
         throw new Error(`Error: ${errorData.message || response.statusText}`);
       }
 
       const data = await response.json();
-      console.log("Task saved successfully:", data);
+      console.log("Task updated successfully:", data);
     } catch (error) {
-      console.error("Failed to save task:", error);
+      console.error("Failed to update task:", error);
     }
+  };
+
+  const deleteTask = async (ID) => {
+    try {
+      const response = await fetch(
+        `http://localhost:8000/api/v1/proyectos/${ID}/`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error Data:", errorData);
+        throw new Error(`Error: ${errorData.message || response.statusText}`);
+      }
+
+      if (response.status === 204) {
+        console.log("Project deleted successfully, no content returned.");
+      } else {
+        const data = await response.json();
+        console.log("Project deleted successfully:", data);
+      }
+    } catch (error) {
+      console.error("Failed to delete project:", error);
+    }
+
+    navigate("/tareas");
   };
 
   return (
@@ -99,6 +169,7 @@ function NewTask() {
                 <Grid2 size={{ xs: 12, md: 12 }} className={styles.input}>
                   <TextField
                     required
+                    value={nombre}
                     label="Nombre"
                     placeholder="Nombre del Proyecto"
                     fullWidth
@@ -110,9 +181,9 @@ function NewTask() {
                   <FormControl>
                     <InputLabel> Proyecto </InputLabel>
                     <Select
-                      value={proyectos}
+                      value={proyecto}
                       className={styles.select}
-                      onChange={(e) => setProyectos(e.target.value)}
+                      onChange={(e) => setProyecto(e.target.value)}
                     >
                       {proyectoList.map((proyecto) => (
                         <MenuItem key={proyecto.id} value={proyecto}>
@@ -120,6 +191,7 @@ function NewTask() {
                         </MenuItem>
                       ))}
                     </Select>
+                    <Button onClick={() => console.log(proyecto)}> Test </Button>
                   </FormControl>
                 </Grid2>
 
@@ -127,6 +199,7 @@ function NewTask() {
                   <InputLabel> Fecha de Inicio </InputLabel>
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
+                      value={inicio}
                       onChange={(date) => setInicio(date.format("YYYY-MM-DD"))}
                     />
                   </LocalizationProvider>
@@ -136,6 +209,7 @@ function NewTask() {
                   <InputLabel> Fecha Limite </InputLabel>
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
+                      value={limite}
                       onChange={(date) => setLimite(date.format("YYYY-MM-DD"))}
                     />
                   </LocalizationProvider>
@@ -143,7 +217,12 @@ function NewTask() {
 
                 <Grid2 size={{ xs: 12, md: 12 }} className={styles.rating}>
                   <InputLabel> Prioridad </InputLabel>
-                  <Rating name="simple-controlled" max={3} size="large" onChange={setPrioridad(parseInt(e.target.value))}/>
+                  <Rating
+                    name="simple-controlled"
+                    max={3}
+                    size="large"
+                    value={prioridad}
+                  />
                 </Grid2>
               </Grid2>
               <div className={styles.buttonContainer}>
@@ -152,9 +231,19 @@ function NewTask() {
                   variant="contained"
                   color="success"
                   className={styles.save}
-                  onClick={saveProject}
+                  onClick={editProject}
                 >
                   Guardar
+                </Button>
+
+                <Button
+                  startIcon={<SaveIcon />}
+                  variant="contained"
+                  color="error"
+                  className={styles.save}
+                  onClick={deleteTask}
+                >
+                  Eliminar
                 </Button>
               </div>
             </Box>
@@ -165,4 +254,4 @@ function NewTask() {
   );
 }
 
-export default NewTask;
+export default Task;

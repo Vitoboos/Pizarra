@@ -17,10 +17,11 @@ import {
   Typography,
   Paper,
 } from "@mui/material";
-
 import Grid2 from "@mui/material/Grid2";
 import Sidebar from "../../Sidebar/Sidebar";
 import { DataGrid } from "@mui/x-data-grid";
+
+import { useNavigate } from "react-router-dom";
 
 import styles from "./styles/ViewProjects.module.css";
 
@@ -31,10 +32,19 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 
 function ViewProjects() {
+
+  // Navegar a Proyectos
+
+  const navigate = useNavigate();
+
+  const onRowClick = (params) => {
+    console.log(params.id)
+    navigate(`/proyectos/${params.row.id}`, { state: params.id })
+  };
+
   // SOLICITUD DE DATOS A LA API
 
   const [isLoading, setIsLoading] = useState(true);
-  const [isUpdating, setIsUpdating] = useState(false);
   const [projects, setProjects] = useState([]);
   const [tasks, setTasks] = useState([]);
   const [rowData, setRowData] = useState([]);
@@ -118,12 +128,6 @@ function ViewProjects() {
     },
   ];
 
-  const onRowClick = (params) => {
-    alert(params.id)
-    setIsLoading(true);
-    setIsUpdating(true);
-  };
-
   // EFECTOS DE PRIMER RENDERIZADO
   useEffect(() => {
     getProjects();
@@ -161,7 +165,7 @@ function ViewProjects() {
               Proyectos
             </Typography>
 
-            {isLoading & !isUpdating ? (
+            {isLoading ? (
               <CircularProgress />
             ) : (
               <DataGrid
@@ -170,12 +174,9 @@ function ViewProjects() {
                 columns={columns}
                 pageSize={5}
                 rowsPerPageOptions={[5]}
-                onRowClick={onRowClick}                
+                onRowClick={onRowClick}
               />
-            )}
-
-            {!isLoading & isUpdating ? <LinearProgress /> : null}
-
+            )}  
           </Box>
         </Grid2>
       </Grid2>
