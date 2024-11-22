@@ -13,6 +13,8 @@ import {
   Rating,
   Select,
   Paper,
+  FormLabel,
+  FormHelperText,
 } from "@mui/material";
 import Grid2 from "@mui/material/Grid2";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -91,11 +93,7 @@ function Task() {
         inicio: inicio.format("YYYY-MM-DD"),
         limite: limite.format("YYYY-MM-DD"),
         prioridad,
-        departamentos: selectedDepartamentos.map(
-          (departamento) => departamento.id
-        ),
-        proveedores: selectedProveedores.map((proveedor) => proveedor.id),
-        observaciones,
+        proyecto: proyecto.id,
       };
 
       console.log("Request Body:", requestBody);
@@ -127,7 +125,7 @@ function Task() {
   const deleteTask = async (ID) => {
     try {
       const response = await fetch(
-        `http://localhost:8000/api/v1/proyectos/${ID}/`,
+        `http://localhost:8000/api/v1/tareas/${ID}/`,
         {
           method: "DELETE",
         }
@@ -178,8 +176,10 @@ function Task() {
                 </Grid2>
 
                 <Grid2 size={{ xs: 12, md: 12 }} className={styles.input}>
+                <Typography> {proyecto.nombre} </Typography>
+
                   <FormControl>
-                    <InputLabel> Proyecto </InputLabel>
+                    <FormHelperText> Proyectos </FormHelperText>
                     <Select
                       value={proyecto}
                       className={styles.select}
@@ -191,7 +191,6 @@ function Task() {
                         </MenuItem>
                       ))}
                     </Select>
-                    <Button onClick={() => console.log(proyecto)}> Test </Button>
                   </FormControl>
                 </Grid2>
 
@@ -222,6 +221,9 @@ function Task() {
                     max={3}
                     size="large"
                     value={prioridad}
+                    onChange={(e, newValue) => {
+                      setPrioridad(newValue);
+                    }}
                   />
                 </Grid2>
               </Grid2>
@@ -231,7 +233,7 @@ function Task() {
                   variant="contained"
                   color="success"
                   className={styles.save}
-                  onClick={editProject}
+                  onClick={() => editProject(ID)}
                 >
                   Guardar
                 </Button>
@@ -241,7 +243,7 @@ function Task() {
                   variant="contained"
                   color="error"
                   className={styles.save}
-                  onClick={deleteTask}
+                  onClick={() => deleteTask(ID)}
                 >
                   Eliminar
                 </Button>

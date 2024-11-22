@@ -143,7 +143,7 @@ function NewTask() {
 
                 <Grid2 size={{ xs: 12, md: 12 }} className={styles.rating}>
                   <InputLabel> Prioridad </InputLabel>
-                  <Rating name="simple-controlled" max={3} size="large" onChange={setPrioridad(parseInt(e.target.value))}/>
+                  <Rating name="simple-controlled" max={3} size="large" onChange={(e) => setPrioridad(parseInt(e.target.value))}/>
                 </Grid2>
               </Grid2>
               <div className={styles.buttonContainer}>

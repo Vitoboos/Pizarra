@@ -1,8 +1,12 @@
-import { useState, useEffect, useRef } from "react";
+// React
+import { useState, useEffect } from "react";
+
+// Material UI
 import {
   Box,
   Button,
   Card,
+  CardContent,
   Container,
   FormControl,
   IconButton,
@@ -10,26 +14,63 @@ import {
   InputLabel,
   MenuItem,
   Rating,
-  Tabs,
+  Select,
   Tab,
+  Tabs,
   TextField,
   Typography,
-  Select,
-  CardContent,
 } from "@mui/material";
 import Grid2 from "@mui/material/Grid2";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import Sidebar from "../../Sidebar/Sidebar";
+
+// Hoja de Estilos
 import styles from "./styles/NewProject.module.css";
 
-import ClearIcon from "@mui/icons-material/Clear";
-import InfoIcon from "@mui/icons-material/Info";
-import BallotIcon from "@mui/icons-material/Ballot";
-import DescriptionIcon from "@mui/icons-material/Description";
-import SearchIcon from "@mui/icons-material/Search";
-import SaveIcon from "@mui/icons-material/Save";
+// Dependencias
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+
 // Iconos
+import BallotIcon from "@mui/icons-material/Ballot";
+import ClearIcon from "@mui/icons-material/Clear";
+import DescriptionIcon from "@mui/icons-material/Description";
+import InfoIcon from "@mui/icons-material/Info";
+import SaveIcon from "@mui/icons-material/Save";
+import SearchIcon from "@mui/icons-material/Search";
+
+// Componentes
+import Sidebar from "../../Sidebar/Sidebar";
+
+// Componentes Internos
+
+const Nombre = ({}) => (
+  <Grid2 size={{ xs: 12, md: 12 }}>
+    <TextField
+      required
+      label="Nombre"
+      placeholder="Nombre del Proyecto"
+      fullWidth
+      onChange={(e) => setNombre(e.target.value)}
+    />
+  </Grid2>
+);
+
+const FechaInicio = ({}) => (
+  <Grid2 size={{ xs: 12, md: 6 }}>
+    <InputLabel> Fecha de Inicio </InputLabel>
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <DatePicker onChange={(date) => setInicio(date.format("YYYY-MM-DD"))} />
+    </LocalizationProvider>
+  </Grid2>
+);
+
+const FechaLimite = ({}) => (
+  <Grid2 size={{ xs: 12, md: 6 }}>
+    <InputLabel> Fecha de Cierre </InputLabel>
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <DatePicker onChange={(date) => setLimite(date.format("YYYY-MM-DD"))} />
+    </LocalizationProvider>
+  </Grid2>
+);
 
 function NewProject() {
   const [currentTab, setCurrentTab] = useState(0);
@@ -71,7 +112,7 @@ function NewProject() {
       );
       return;
     }
-  
+
     setSelectedDepartamentos([...selectedDepartamentos, departamento]);
   };
 
@@ -111,13 +152,15 @@ function NewProject() {
         inicio,
         limite,
         prioridad,
-        departamentos: selectedDepartamentos.map((departamento) => departamento.id),
+        departamentos: selectedDepartamentos.map(
+          (departamento) => departamento.id
+        ),
         proveedores: selectedProveedores.map((proveedor) => proveedor.id),
         observaciones,
       };
-  
+
       console.log("Request Body:", requestBody); // Log the request body
-  
+
       const response = await fetch("http://localhost:8000/api/v1/proyectos/", {
         method: "POST",
         headers: {
@@ -125,13 +168,13 @@ function NewProject() {
         },
         body: JSON.stringify(requestBody),
       });
-  
+
       if (!response.ok) {
         const errorData = await response.json();
         console.error("Error Data:", errorData); // Log the error data
         throw new Error(`Error: ${errorData.message || response.statusText}`);
       }
-  
+
       const data = await response.json();
       console.log("Project saved successfully:", data);
     } catch (error) {
@@ -142,10 +185,10 @@ function NewProject() {
   return (
     <Box className={styles.background}>
       <Grid2 container>
-        <Grid2 size={{ xs: 12, md: 2 }}>
+        <Grid2 size={{ xs: 12, md: 3 }}>
           <Sidebar />
         </Grid2>
-        <Grid2 size={{ xs: 12, md: 10 }} className={styles.content}>
+        <Grid2 size={{ xs: 12, md: 9 }} className={styles.content}>
           <Box className={styles.section}>
             <Typography className={styles.title} variant="h5">
               Nuevo Proyecto
@@ -176,7 +219,7 @@ function NewProject() {
             {currentTab === 0 && (
               <Box value={0} index={0} className={styles.frame}>
                 <Grid2 container className={styles.container}>
-                  <Grid2 size={{ xs: 12, md: 12 }} className={styles.input}>
+                  <Grid2 size={{ xs: 12, md: 12 }}>
                     <TextField
                       required
                       label="Nombre"
@@ -186,7 +229,7 @@ function NewProject() {
                     />
                   </Grid2>
 
-                  <Grid2 size={{ xs: 12, md: 6 }} className={styles.dates}>
+                  <Grid2 size={{ xs: 12, md: 6 }}>
                     <InputLabel> Fecha de Inicio </InputLabel>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <DatePicker
@@ -197,7 +240,7 @@ function NewProject() {
                     </LocalizationProvider>
                   </Grid2>
 
-                  <Grid2 size={{ xs: 12, md: 6 }} className={styles.dates}>
+                  <Grid2 size={{ xs: 12, md: 6 }}>
                     <InputLabel> Fecha de Cierre </InputLabel>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <DatePicker
@@ -208,7 +251,7 @@ function NewProject() {
                     </LocalizationProvider>
                   </Grid2>
 
-                  <Grid2 size={{ xs: 12, md: 12 }} className={styles.rating}>
+                  <Grid2 size={{ xs: 12, md: 12 }}>
                     <InputLabel> Prioridad </InputLabel>
                     <Rating
                       name="simple-controlled"

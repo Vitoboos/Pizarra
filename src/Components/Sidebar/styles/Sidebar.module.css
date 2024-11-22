@@ -17,6 +17,7 @@
   margin-top: 1rem;
   /* Fondo */
   background-color: white;
+  background-image: url("https://www.transparenttextures.com/patterns/asfalt-light.png");
 }
 
 @media screen and (max-width: 768px) {
@@ -42,7 +43,5 @@
 }
 
 .title .label{
-  width: 100%;
-  text-align: center;
   font-weight: bold;
 }
