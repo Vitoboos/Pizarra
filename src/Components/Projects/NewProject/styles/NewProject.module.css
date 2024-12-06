@@ -38,15 +38,17 @@ body {
   box-shadow: 0px 0px 5px var(--darkblue);
   background-color: var(--lightblue);
   color: white !important;
-  font-weight: bold!important;
+  font-weight: bold !important;
   text-align: center !important;
   border-radius: 5px !important;
 }
 
-.section .frame {
+/* Encuadre */
+
+.frame {
+  margin: 5px;
   position: relative;
   width: 100%;
-  min-height: 55vh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -54,5 +56,82 @@ body {
 }
 
 .frame .container {
-  width: 50vw;
+  width: 100%;
+}
+
+.frame .fullWidth {
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-items: center;
+}
+
+.fullWidth .textarea{
+  margin: 10px;
+  padding: 5px;
+  width: 50%;
+  max-height: 300px;
+  overflow-y: scroll;
+}
+
+.frame .halfWidth {
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  justify-items: center;
+  text-align: center;
+}
+
+.halfWidth .label {
+  /* Fondo */
+  box-shadow: 0px 0px 2px var(--darkblue);
+  border-radius: 5px;
+  background-color: var(--lightblue);
+  color: white;
+  /* Espaciado */
+  padding: 5px;
+  margin: 10px;
+  /* Fuente */
+  font-weight: bold !important;
+}
+
+.halfWidth .search {
+  margin: 5px;
+}
+
+.halfWidth .select{
+  margin: auto;
+  width: 75px;
+}
+
+.list {
+  /* Estructura */
+  display: flex;
+  flex-direction: column;
+  justify-items: center;
+  /* Fondo */
+  box-shadow: 0px 0px 2px var(--darkblue) !important;
+  border-radius: 5px;
+  /* Espaciado */
+  padding: 5px;
+  margin: 10px;
+}
+
+.list .item {
+  /* Estructura */
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-items: center;
+  align-items: center;
+}
+
+.list .item:hover {
+  background-color: hsl(0, 0%, 95%);
+  cursor: pointer;
+}
+
+.name {
+  width: 100%;
 }

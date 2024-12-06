@@ -38,15 +38,17 @@ body {
   box-shadow: 0px 0px 5px var(--darkblue);
   background-color: var(--lightblue);
   color: white !important;
-  font-weight: bold!important;
+  font-weight: bold !important;
   text-align: center !important;
   border-radius: 5px !important;
 }
 
-.section .frame {
+/* Encuadre */
+
+.frame {
+  margin: 5px;
   position: relative;
   width: 100%;
-  min-height: 55vh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -54,92 +56,102 @@ body {
 }
 
 .frame .container {
-  width: 50vw;
+  width: 100%;
 }
 
-/* Tab 1 */
-
-.frame .input {
+.frame .fullWidth {
+  padding: 5px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
-  min-height: 15vh;
+  justify-items: center;
 }
 
-.frame .dates {
+.fullWidth .textarea{
+  margin: 10px;
+  padding: 5px;
+  width: 50%;
+  max-height: 300px;
+  overflow-y: scroll;
+}
+
+.frame .halfWidth {
+  padding: 5px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 15vh;
-}
-
-.frame .rating {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 15vh;
-}
-
-/* Tab 2 */
-
-.frame .dropdown {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 25vh;
-}
-
-.dropdown .label{
-  min-width: fit-content;
-  width: 80%;
-  padding: 5px 10px;
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin: 2rem;
+  justify-items: center;
   text-align: center;
+}
+
+.halfWidth .label {
+  /* Fondo */
+  box-shadow: 0px 0px 2px var(--darkblue);
+  border-radius: 5px;
   background-color: var(--lightblue);
   color: white;
-  border-radius: 15px;
-}
-
-.dropdown .select {
-  width: 16rem;
+  /* Espaciado */
   padding: 5px;
-  margin: 2rem;
-  text-align: center;
+  margin: 10px;
+  /* Fuente */
+  font-weight: bold !important;
+}
+
+.halfWidth .search {
+  margin: 5px;
+}
+
+.halfWidth .select{
+  margin: auto;
+  width: 75px;
+}
+
+.list {
+  /* Estructura */
+  display: flex;
+  flex-direction: column;
+  justify-items: center;
+  /* Fondo */
+  box-shadow: 0px 0px 2px var(--darkblue) !important;
   border-radius: 5px;
+  /* Espaciado */
+  padding: 5px;
+  margin: 10px;
 }
 
-.dropdown .basket {
-  width: 80%;
-  min-height: 10vh;
-}
-
-.basket .item {
+.list .item {
+  /* Estructura */
+  width: 100%;
   display: flex;
   flex-direction: row;
-  justify-content: center;
+  justify-items: center;
   align-items: center;
 }
 
-.frame .search{
-  margin: 0px
+.list .item:hover {
+  background-color: hsl(0, 0%, 95%);
+  cursor: pointer;
 }
 
-/* Tab 3 */
-
-.input.observations {
-  max-height: 50vh;
-}
-
-.frame .textarea {
+.name {
   width: 100%;
-  margin-top: 10px;
-  margin-bottom: 0px;
-  max-height: 100%;
-  overflow-y: scroll;
+}
+
+.buttonContainer{
+  width: 100%;
+}
+
+.buttonContainer .save{
+  width: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: auto;
+}
+
+.buttonContainer .delete{
+  width: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: auto;
 }

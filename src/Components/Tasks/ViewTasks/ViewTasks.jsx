@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 
 import {
   Box,
+  Checkbox,
   Chip,
   CircularProgress,
   LinearProgress,
@@ -15,6 +16,7 @@ import {
   TableRow,
   TableSortLabel,
   Typography,
+  Rating,
   Paper,
 } from "@mui/material";
 
@@ -33,12 +35,12 @@ import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import { useNavigate } from "react-router-dom";
 
 function ViewProjects() {
-// Navegacion
+  // Navegacion
   const navigate = useNavigate();
 
   const onRowClick = (params) => {
-    console.log(params.id)
-    navigate(`/tareas/${params.row.id}`, { state: params.id })
+    console.log(params.id);
+    navigate(`/tareas/${params.row.id}`, { state: params.id });
   };
 
   // SOLICITUD DE DATOS A LA API
@@ -61,10 +63,11 @@ function ViewProjects() {
 
   // CONSTRUCCION DE TABLA
 
-  const createData = (id, nombre, prioridad, inicio, limite, estado) => {
+  const createData = (id, nombre, prioridad, inicio, limite, estado, proyecto) => {
     return {
       id,
       nombre,
+      proyecto,
       prioridad,
       inicio,
       limite,
@@ -77,12 +80,72 @@ function ViewProjects() {
   const rows = rowData;
 
   const columns = [
-    { field: "id", headerName: "ID", flex: 1,},
-    { field: "nombre", headerName: "Nombre", flex: 1 },
-    { field: "prioridad", headerName: "Prioridad", flex: 1 },
-    { field: "inicio", headerName: "Inicio", flex: 1 },
-    { field: "limite", headerName: "Limite", flex: 1 },
-    { field: "estado", headerName: "Estado", flex: 1 },
+    { field: "id", headerName: "ID", headerClassName: styles.header },
+    {
+      field: "nombre",
+      headerName: "Nombre",
+      headerClassName: styles.header,
+      flex: 1,
+
+      renderCell: (params) => {
+        return (
+          <div className={styles.nameContainer}>
+            <Typography variant="h12">{params.value}</Typography>
+          </div>
+        );
+      },
+    },
+    {
+      field: "proyecto",
+      headerName: "Proyecto",
+      headerClassName: styles.header,
+      flex: 1,
+    },
+    {
+      field: "prioridad",
+      headerName: "Prioridad",
+      headerClassName: styles.header,
+
+      renderCell: (params) => {
+        return (
+          <div className={styles.ratingContainer}>
+            <Rating
+              className={styles.rating}
+              max={3}
+              size="large"
+              value={params.value}
+              readOnly
+            />
+          </div>
+        );
+      },
+    },
+    {
+      field: "inicio",
+      headerName: "Inicio",
+      headerClassName: styles.header,
+    },
+    {
+      field: "limite",
+      headerName: "Limite",
+      headerClassName: styles.header,
+    },
+    {
+      field: "estado",
+      headerName: "Estado",
+      headerClassName: styles.header,
+      renderCell: (params) => {
+        return (
+          <div className={styles.statusContainer}>
+            <Checkbox
+              className={styles.checkbox}
+              checked={params.value}
+              disabled
+            />
+          </div>
+        )
+      }
+    },
   ];
 
   // EFECTOS DE PRIMER RENDERIZADO
@@ -94,7 +157,6 @@ function ViewProjects() {
   // EFECTOS DE RENDERIZADO
   useEffect(() => {
     const rows = tasks.map((task) =>
-
       createData(
         task.id,
         task.nombre,
@@ -102,21 +164,22 @@ function ViewProjects() {
         task.inicio,
         task.limite,
         task.estado,
-      ),
+        task.proyecto_nombre
+      )
     );
 
     setRowData(rows);
-    setIsLoading(false);    
+    setIsLoading(false);
   }, [projects, tasks]);
 
   return (
     <Box className={styles.background}>
       <Grid2 container>
-        <Grid2 size={{ xs: 12, md: 2 }}>
+        <Grid2 size={{ xs: 12, md: 3 }}>
           <Sidebar />
         </Grid2>
 
-        <Grid2 size={{ xs: 12, md: 10 }} className={styles.content}>
+        <Grid2 size={{ xs: 12, md: 9 }} className={styles.content}>
           <Box className={styles.section}>
             <Typography className={styles.title} variant="h5">
               Tareas

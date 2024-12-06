@@ -102,3 +102,7 @@ body {
   flex-direction: row;
   align-items: center;
 }
+
+.stack .assignment:hover{
+  background-color: whitesmoke;
+}

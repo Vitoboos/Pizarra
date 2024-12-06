@@ -17,14 +17,14 @@ import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import dayjs from "dayjs";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
+import { useNavigate } from "react-router-dom";
 
 import Sidebar from "../Sidebar/Sidebar";
 import styles from "./styles/Calendar.module.css";
 
 function Calendar() {
+  const navigate = useNavigate();
   // SOLICITUD DE DATOS A LA API
-
-  const [isLoading, setIsLoading] = useState(true);
   const [date, setDate] = useState(dayjs());
   const [projects, setProjects] = useState([]);
   const [tasks, setTasks] = useState([]);
@@ -92,6 +92,7 @@ function Calendar() {
                   <Checkbox
                     className={styles.checkbox}
                     defaultChecked={task.estado}
+                    disabled
                   />
                 </Container>
               ))}
@@ -101,15 +102,25 @@ function Calendar() {
     );
   }
 
+  const goToTask = (ID) => {
+    navigate(`/tareas/${ID}`, { state: ID });
+  };
+
   function TaskItem({ task }) {
     return (
       <CardContent className={styles.data}>
-        <Stack className={styles.stack}>
+        <Stack
+          className={styles.stack}
+          onClick={() => {
+            goToTask(task.id);
+          }}
+        >
           <Container className={styles.assignment}>
             <Typography className={styles.name}>{task.nombre}</Typography>
             <Checkbox
               className={styles.checkbox}
               defaultChecked={task.estado}
+              disabled
             />
           </Container>
         </Stack>

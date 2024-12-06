@@ -46,7 +46,7 @@ body {
   font-weight: bold;
   text-align: center;
   border-radius: 5px;
-  font-weight: bold!important;
+  font-weight: bold !important;
 }
 
 .frame {
@@ -63,9 +63,93 @@ body {
   width: 50vw;
 }
 
+/* Tabla */
+
 .table {
   margin: 1rem;
   max-height: 50vh;
+}
+
+/* Nombre */
+
+.nameContainer{
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Estados de la Tabla */
+.state {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.state .notstarted {
+  color: #2b94c4 !important;
+}
+
+.state .ongoing {
+  color: #009936 !important;
+}
+
+.state .suspended {
+  color: #de5e3e !important;
+}
+
+.state .complete {
+  color: #fcce26 !important;
+}
+
+/* Fecha Limite */
+
+.dateContainer{
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Progreso  */
+.progressContainer {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.progressContainer .progress {
+  width: 90%;
+  height: 10px;
+  background-color: #f1f1f1;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+/* Prioridad */
+.ratingContainer {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/*  */
+
+.table .header {
+  background-color: var(--lightblue);
+  color: white;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: bolder !important;
 }
 
 .header {
@@ -86,7 +170,7 @@ header .cell:hover {
   cursor: pointer;
 }
 
-.body .cell{
+.body .cell {
   text-align: center;
 }
 
