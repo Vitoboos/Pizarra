@@ -9,7 +9,6 @@ import NewTask from "./Components/Tasks/NewTask/NewTask.jsx";
 import ViewTasks from "./Components/Tasks/ViewTasks/ViewTasks.jsx";
 import Task from "./Components/Tasks/Task/Task.jsx";
 import Calendar from "./Components/Calendar/Calendar.jsx";
-import Stats from "./Components/Stats/Stats.jsx";
 
 createRoot(document.getElementById("root")).render(
   <Router>
@@ -25,7 +24,6 @@ createRoot(document.getElementById("root")).render(
       <Route path="/tareas/:id" element={<Task />} />
       {/* Herramientas */}
       <Route path="/planificacion" element={<Calendar />} />
-      <Route path="/estadisticas" element={<Stats />} />
     </Routes>
   </Router>
 );

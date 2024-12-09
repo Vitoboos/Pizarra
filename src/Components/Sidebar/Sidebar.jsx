@@ -170,21 +170,7 @@ function Sidebar() {
               <ListItemText primary="Planificación" />
             </ListItemButton>
           </ListItem>
-          <ListItem disablePadding>
-            <ListItemButton
-              onClick={() => {
-                navigate("/estadisticas");
-              }}
-              sx={{ pl: 4 }}
-            >
-              <ListItemIcon>
-                {" "}
-                <QueryStatsIcon />{" "}
-              </ListItemIcon>
 
-              <ListItemText primary="Estadisticas" />
-            </ListItemButton>
-          </ListItem>
         </Collapse>
       </List>
     </Box>

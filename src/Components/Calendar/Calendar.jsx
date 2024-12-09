@@ -131,10 +131,10 @@ function Calendar() {
   return (
     <Box className={styles.background}>
       <Grid2 container>
-        <Grid2 size={{ xs: 12, md: 2 }}>
+        <Grid2 size={{ xs: 12, md: 3 }}>
           <Sidebar />
         </Grid2>
-        <Grid2 size={{ xs: 12, md: 10 }} className={styles.content}>
+        <Grid2 size={{ xs: 12, md: 9 }} className={styles.content}>
           <Box className={styles.section}>
             <Container className={styles.calendar}>
               <Typography className={styles.title} variant="h5">
